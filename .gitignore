@@ -1,0 +1,6 @@
+custom_characters
+__pycache__
+.DS_Store
+EMNIST/
+MNIST/
+*.pt
