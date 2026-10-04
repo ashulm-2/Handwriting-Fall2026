@@ -215,7 +215,7 @@ if __name__ == '__main__':
   start = time.time()
   network = CNN() #creates the CNN
   
-  network._train(epochs=5) 
+  network._train(epochs=1) 
   end = time.time()
 
   print(f"It took {(end-start)/60:.1f} minutes to train the network.")
