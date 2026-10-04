@@ -119,7 +119,7 @@ class CNN(nn.Module):
                                download=True, transform=transform)
                                
                                
-    if design.DATASET_TYPE == "MNIST":
+    elif design.DATASET_TYPE == "MNIST":
       train_dataset = MNIST(design.MNISTDir, train=True, download=True, transform=transform)
       test_dataset = MNIST(design.MNISTDir, train=False, download=True, transform=transform)
 
