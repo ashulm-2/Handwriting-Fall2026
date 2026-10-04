@@ -11,6 +11,7 @@ import os
 import torch
 import torchvision.transforms as transforms
 import numpy as np
+import cv2
 from PIL import Image
 
 
@@ -23,21 +24,21 @@ from PIL import Image
 # "MNIST"
 # "CUSTOM"
 
-DATASET_TYPE = "MNIST"
+DATASET_TYPE = "EMNIST"
 
 
 ##############################################################
 # EMNIST SETTINGS
 ##############################################################
 
-EMNISTDir = "C:\\Users\\ashul\\OneDrive\\Documents\\GitHub\\emnist"
+EMNISTDir = "./data"
 
 # Options:
 # balanced, byclass, bymerge, letters, digits, mnist
 EMNIST_SPLIT = "bymerge"
 
 
-MNISTDir = "C:\\Users\\ashul\\OneDrive\\Documents\\GitHub\\mnist"
+MNISTDir = "./data"
 
 
 
@@ -154,7 +155,46 @@ class BinaryTransform:
 
     return Image.fromarray(img)
 
+class DilateTransform:
 
+  def __init__(self, thickness=1):
+    self.thickness = thickness
+
+  def __call__(self, img):
+    img = np.array(img)
+
+    if self.thickness > 0:
+      kernel = np.ones((3, 3), np.uint8)
+      img = cv2.dilate(img, kernel, iterations=self.thickness)
+
+    return Image.fromarray(img)
+
+class CropResizeTransform:
+
+  def __init__(self, final_size=28, inner_size=20):
+    self.final_size = final_size
+    self.inner_size = inner_size
+
+  def __call__(self, img):
+    img = np.array(img)
+
+    coords = cv2.findNonZero(img)
+    if coords is None:
+      return Image.fromarray(np.zeros((self.final_size, self.final_size), dtype=np.uint8))
+
+    x, y, w, h = cv2.boundingRect(coords)
+    cropped = img[y:y+h, x:x+w]
+
+    scale = self.inner_size / max(w, h)
+    new_w, new_h = max(1, int(w * scale)), max(1, int(h * scale))
+    resized = cv2.resize(cropped, (new_w, new_h))
+
+    canvas = np.zeros((self.final_size, self.final_size), dtype=np.uint8)
+    x_off = (self.final_size - new_w) // 2
+    y_off = (self.final_size - new_h) // 2
+    canvas[y_off:y_off+new_h, x_off:x_off+new_w] = resized
+
+    return Image.fromarray(canvas)
 
 class TransposeTransform:
   def __call__(self,img):
@@ -166,9 +206,9 @@ class TransposeTransform:
 
 IMAGE_TRANSFORM = transforms.Compose([
   transforms.Grayscale(num_output_channels=1),
-  BinaryTransform(
-    threshold=100
-  ),
+  BinaryTransform(threshold=128),
+  DilateTransform(thickness=0),
+  CropResizeTransform(final_size=28, inner_size=20),
   transforms.ToTensor(),
   TransposeTransform()
 ])
