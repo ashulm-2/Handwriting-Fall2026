@@ -18,6 +18,32 @@ class PreprocessingError(ValueError):
     """Raised when an image cannot be converted into a valid character sample."""
 
 
+EMNIST_AVERAGE_STROKE_WIDTH = 4.345
+
+
+def _horizontal_stroke_width(
+    image: Image.Image,
+    row: int = 14,
+    threshold: int = 127,
+) -> int | None:
+    """Measure from the first white pixel to the next black pixel on one row."""
+    pixels = np.asarray(image.convert("L"))
+    if not 0 <= row < pixels.shape[0]:
+        raise ValueError("row must be within the image")
+
+    white_columns = np.flatnonzero(pixels[row] > threshold)
+    if white_columns.size == 0:
+        return None
+
+    first_white = int(white_columns[0])
+    black_columns = np.flatnonzero(pixels[row, first_white + 1 :] <= threshold)
+    if black_columns.size == 0:
+        return None
+
+    first_black_after_white = first_white + 1 + int(black_columns[0])
+    return first_black_after_white - first_white
+
+
 # PIPELINE CHECKPOINT P01 — LOAD IMAGE + GREYSCALE
 # The pipeline begins by reading the source image, fixing orientation, and converting
 # it to grayscale before any foreground extraction is attempted.
@@ -138,37 +164,62 @@ def _crop_mask(mask: np.ndarray) -> np.ndarray:
     return cleaned[rows.min() : rows.max() + 1, columns.min() : columns.max() + 1]
 
 
+def _save_checkpoint(
+    image: Image.Image,
+    checkpoint_directory: Path | None,
+    source_stem: str | None,
+    checkpoint_number: str,
+) -> None:
+    if checkpoint_directory is None or source_stem is None:
+        return
+
+    checkpoint_directory.mkdir(parents=True, exist_ok=True)
+    image.save(
+        checkpoint_directory / f"{source_stem}_P{checkpoint_number}.png",
+        format="PNG",
+    )
+
+
 def preprocess_image(
     source: str | Path | Image.Image,
     character_size: int = 20,
     output_size: int = 28,
     center_of_mass: bool = True,
     thicken: bool = True,
+    checkpoint_directory: str | Path | None = None,
+    source_stem: str | None = None,
 ) -> Image.Image:
     """Return a validated, centered grayscale character image in a 28x28 canvas."""
     if character_size >= output_size or character_size < 1:
         raise ValueError("character_size must be positive and smaller than output_size")
 
+    checkpoint_directory = (
+        Path(checkpoint_directory) if checkpoint_directory is not None else None
+    )
+
     # PIPELINE CHECKPOINT P01 — LOAD IMAGE + GREYSCALE
     grayscale = _load_grayscale(source)
+    _save_checkpoint(grayscale, checkpoint_directory, source_stem, "01")
 
     # PIPELINE CHECKPOINT P03 — FIX POLARITY
-    mask = _crop_mask(_binary_mask(grayscale))
-    ink_ratio = float(mask.mean())
+    mask = _binary_mask(grayscale)
+    polarity_fixed = Image.fromarray(mask.astype(np.uint8) * 255)
+    _save_checkpoint(polarity_fixed, checkpoint_directory, source_stem, "03")
+
+    # PIPELINE CHECKPOINT P05 — CROP TO CHARACTER
+    mask = _crop_mask(mask)
+    cropped = Image.fromarray(mask.astype(np.uint8) * 255)
+    _save_checkpoint(cropped, checkpoint_directory, source_stem, "05")
 
     # PIPELINE CHECKPOINT P06 — PAD TO SQUARE
-    character = Image.fromarray(mask.astype(np.uint8) * 255)
-    side = max(character.size)
+    side = max(cropped.size)
     square = Image.new("L", (side, side), 0)
-    square.paste(character, ((side - character.width) // 2, (side - character.height) // 2))
+    square.paste(cropped, ((side - cropped.width) // 2, (side - cropped.height) // 2))
+    _save_checkpoint(square, checkpoint_directory, source_stem, "06")
 
     # PIPELINE CHECKPOINT P08 — RESIZE TO 20x20
     character = square.resize((character_size, character_size), Image.Resampling.LANCZOS)
-
-    # PIPELINE CHECKPOINT P07 — THICKEN IF THIN
-    if thicken and ink_ratio < 0.12:
-        mask_image = Image.fromarray(mask.astype(np.uint8) * 255)
-        mask = np.asarray(mask_image.filter(ImageFilter.MaxFilter(3)), dtype=np.uint8) > 0
+    _save_checkpoint(character, checkpoint_directory, source_stem, "08")
 
     # PIPELINE CHECKPOINT P09 — CENTER ON A 28x28 CANVAS
     canvas = Image.new("L", (output_size, output_size), 0)
@@ -192,6 +243,15 @@ def preprocess_image(
             resample=Image.Resampling.NEAREST,
             fillcolor=0,
         )
+    _save_checkpoint(canvas, checkpoint_directory, source_stem, "09")
+
+    # PIPELINE CHECKPOINT P07 — THICKEN IF THINNER THAN EMNIST AVERAGE
+    if thicken:
+        stroke_width = _horizontal_stroke_width(canvas)
+        while stroke_width is not None and stroke_width < EMNIST_AVERAGE_STROKE_WIDTH:
+            canvas = canvas.filter(ImageFilter.MaxFilter(3))
+            stroke_width = _horizontal_stroke_width(canvas)
+    _save_checkpoint(canvas, checkpoint_directory, source_stem, "07")
 
     # PIPELINE CHECKPOINT P10 — VALIDATE
     extrema = canvas.getextrema()
@@ -201,16 +261,32 @@ def preprocess_image(
         raise PreprocessingError("output is blank or has the wrong format")
     if not 0.002 <= fraction <= 0.75:
         raise PreprocessingError(f"white-pixel fraction is out of range: {fraction:.3f}")
+    _save_checkpoint(canvas, checkpoint_directory, source_stem, "10")
 
     return canvas
 
 
-def preprocess_file(source: str | Path, destination: str | Path) -> None:
+def preprocess_file(
+    source: str | Path,
+    destination: str | Path,
+    checkpoint_directory: str | Path | None = None,
+) -> None:
     """Process a single image and save it as a PNG file."""
-    result = preprocess_image(source)
+    source = Path(source)
+    result = preprocess_image(
+        source,
+        checkpoint_directory=checkpoint_directory,
+        source_stem=source.stem,
+    )
     destination = Path(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
     result.save(destination, format="PNG")
+    _save_checkpoint(
+        result,
+        Path(checkpoint_directory) if checkpoint_directory is not None else None,
+        source.stem,
+        "11",
+    )
 
 
 def preprocess_directory(source_directory: str | Path, output_directory: str | Path) -> Path:
@@ -218,6 +294,7 @@ def preprocess_directory(source_directory: str | Path, output_directory: str | P
     # PIPELINE CHECKPOINT P11 — SAVE
     source_directory = Path(source_directory)
     output_directory = Path(output_directory)
+    checkpoint_directory = Path(__file__).with_name("secondary results")
     rejected_directory = output_directory / "rejected"
 
     output_directory.mkdir(parents=True, exist_ok=True)
@@ -230,7 +307,7 @@ def preprocess_directory(source_directory: str | Path, output_directory: str | P
 
         destination = output_directory / f"{source.stem}.png"
         try:
-            preprocess_file(source, destination)
+            preprocess_file(source, destination, checkpoint_directory)
             records.append((source.name, "accepted", ""))
         except (OSError, PreprocessingError, ValueError) as error:
             records.append((source.name, "rejected", str(error)))
@@ -246,5 +323,3 @@ def preprocess_directory(source_directory: str | Path, output_directory: str | P
 
 if __name__ == "__main__":
     preprocess_directory("charset", "output")
-
-

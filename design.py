@@ -12,6 +12,16 @@ import torch
 import torchvision.transforms as transforms
 import numpy as np
 from PIL import Image
+from PIL import ImageFilter
+
+from preprocessing_final import (
+    EMNIST_AVERAGE_STROKE_WIDTH,
+    PreprocessingError,
+    _binary_mask,
+    _crop_mask,
+    _horizontal_stroke_width,
+    _load_grayscale,
+)
 
 
 ##############################################################
@@ -140,19 +150,97 @@ def CToC(c):
 ##############################################################
 
 
-class BinaryTransform:
+class GrayscaleTransform:
+  def __call__(self, img):
+    return _load_grayscale(img)
 
-  def __init__(self, threshold=128):
-    self.threshold = threshold
+
+class ForegroundMaskTransform:
+  def __call__(self, img):
+    mask = _binary_mask(img)
+    return Image.fromarray(mask.astype(np.uint8) * 255)
 
 
-  def __call__(self,img):
+class CropCharacterTransform:
+  def __call__(self, img):
+    mask = np.asarray(img.convert("L")) > 127
+    cropped = _crop_mask(mask)
+    return Image.fromarray(cropped.astype(np.uint8) * 255)
 
-    img = np.array(img)
 
-    img = (img > self.threshold).astype(np.uint8)*255
+class PadToSquareTransform:
+  def __call__(self, img):
+    side = max(img.size)
+    square = Image.new("L", (side, side), 0)
+    square.paste(img, ((side - img.width) // 2, (side - img.height) // 2))
+    return square
 
-    return Image.fromarray(img)
+
+class ResizeCharacterTransform:
+  def __init__(self, character_size=20):
+    self.character_size = character_size
+
+  def __call__(self, img):
+    return img.resize(
+      (self.character_size, self.character_size),
+      Image.Resampling.LANCZOS
+    )
+
+
+class CenterOnCanvasTransform:
+  def __init__(self, output_size=28, center_of_mass=True):
+    self.output_size = output_size
+    self.center_of_mass = center_of_mass
+
+  def __call__(self, img):
+    canvas = Image.new("L", (self.output_size, self.output_size), 0)
+    offset = (self.output_size - img.width) // 2
+    canvas.paste(img, (offset, offset))
+
+    if self.center_of_mass:
+      pixels = np.asarray(canvas, dtype=np.float32)
+      total = pixels.sum()
+      if total <= 0:
+        raise PreprocessingError("character became blank after resizing")
+
+      rows, columns = np.indices(pixels.shape)
+      shift_row = round(self.output_size / 2 - (rows * pixels).sum() / total)
+      shift_column = round(self.output_size / 2 - (columns * pixels).sum() / total)
+      canvas = canvas.transform(
+        canvas.size,
+        Image.Transform.AFFINE,
+        (1, 0, -shift_column, 0, 1, -shift_row),
+        resample=Image.Resampling.NEAREST,
+        fillcolor=0,
+      )
+
+    return canvas
+
+
+class ThickenToEMNISTWidthTransform:
+  def __init__(self, target_width=EMNIST_AVERAGE_STROKE_WIDTH):
+    self.target_width = target_width
+
+  def __call__(self, img):
+    stroke_width = _horizontal_stroke_width(img)
+    while stroke_width is not None and stroke_width < self.target_width:
+      img = img.filter(ImageFilter.MaxFilter(3))
+      stroke_width = _horizontal_stroke_width(img)
+    return img
+
+
+class ValidateCharacterTransform:
+  def __init__(self, output_size=28):
+    self.output_size = output_size
+
+  def __call__(self, img):
+    extrema = img.getextrema()
+    fraction = np.count_nonzero(np.asarray(img)) / (self.output_size * self.output_size)
+    if img.size != (self.output_size, self.output_size) or extrema[1] == 0:
+      raise PreprocessingError("output is blank or has the wrong format")
+    if not 0.002 <= fraction <= 0.75:
+      raise PreprocessingError(f"white-pixel fraction is out of range: {fraction:.3f}")
+    return img
 
 
 
@@ -165,10 +253,14 @@ class TransposeTransform:
 # User can change this
 
 IMAGE_TRANSFORM = transforms.Compose([
-  transforms.Grayscale(num_output_channels=1),
-  BinaryTransform(
-    threshold=100
-  ),
+  GrayscaleTransform(),
+  ForegroundMaskTransform(),
+  CropCharacterTransform(),
+  PadToSquareTransform(),
+  ResizeCharacterTransform(character_size=20),
+  CenterOnCanvasTransform(output_size=28, center_of_mass=True),
+  ThickenToEMNISTWidthTransform(),
+  ValidateCharacterTransform(output_size=28),
   transforms.ToTensor(),
   TransposeTransform()
 ])
