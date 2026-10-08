@@ -33,7 +33,7 @@ from preprocessing_final import (
 # "MNIST"
 # "CUSTOM"
 
-DATASET_TYPE = "MNIST"
+DATASET_TYPE = "EMNIST"
 
 
 ##############################################################
