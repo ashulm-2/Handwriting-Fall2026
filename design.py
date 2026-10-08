@@ -30,14 +30,14 @@ DATASET_TYPE = "MNIST"
 # EMNIST SETTINGS
 ##############################################################
 
-EMNISTDir = "C:\\Users\\ashul\\OneDrive\\Documents\\GitHub\\emnist"
+EMNISTDir = os.path.join(os.path.expanduser("~"), "datasets", "EMNIST")
 
 # Options:
 # balanced, byclass, bymerge, letters, digits, mnist
 EMNIST_SPLIT = "bymerge"
 
 
-MNISTDir = "C:\\Users\\ashul\\OneDrive\\Documents\\GitHub\\mnist"
+MNISTDir = os.path.join(os.path.expanduser("~"), "datasets", "MNIST")
 
 
 
@@ -57,7 +57,7 @@ MNISTDir = "C:\\Users\\ashul\\OneDrive\\Documents\\GitHub\\mnist"
 #     image1.png
 #
 
-CUSTOM_DATASET_DIRECTORY = r"C:\Users\ashul\Documents\MyDataset"
+CUSTOM_DATASET_DIRECTORY = r"D:\7. Lectures\MURL FA26\Handwriting-Fall2026\MyDataset"
 
 
 

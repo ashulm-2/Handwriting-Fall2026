@@ -119,7 +119,7 @@ class CNN(nn.Module):
                                download=True, transform=transform)
                                
                                
-    if design.DATASET_TYPE == "MNIST":
+    elif design.DATASET_TYPE == "MNIST":
       train_dataset = MNIST(design.MNISTDir, train=True, download=True, transform=transform)
       test_dataset = MNIST(design.MNISTDir, train=False, download=True, transform=transform)
 
@@ -215,7 +215,7 @@ if __name__ == '__main__':
   start = time.time()
   network = CNN() #creates the CNN
   
-  network._train(epochs=5) 
+  network._train(epochs=1) 
   end = time.time()
 
   print(f"It took {(end-start)/60:.1f} minutes to train the network.")
