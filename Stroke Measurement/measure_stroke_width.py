@@ -5,11 +5,13 @@ from __future__ import annotations
 import argparse
 import csv
 import random
+import sys
 from pathlib import Path
 
 import numpy as np
 from torchvision.datasets import EMNIST
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import design
 
 
@@ -56,6 +58,12 @@ def main() -> None:
         type=Path,
         default=Path(__file__).with_name("stroke_width_measurements.csv"),
         help="CSV file for per-image measurements",
+    )
+    parser.add_argument(
+        "--summary",
+        type=Path,
+        default=Path(__file__).with_name("stroke_width_summary.txt"),
+        help="text file for the measurement summary",
     )
     args = parser.parse_args()
 
@@ -111,14 +119,23 @@ def main() -> None:
         writer.writerows(measurements)
 
     widths = [width for _, width in measurements]
-    print(f"EMNIST split: {design.EMNIST_SPLIT} (training set)")
-    print(f"Class: {dataset.classes[o_label]}")
-    print(f"Images measured: {len(widths)}")
-    print(f"Scan row: 14; white threshold: >127")
-    print(f"Average stroke width: {np.mean(widths):.3f} pixels")
-    print(f"Minimum / maximum: {min(widths)} / {max(widths)} pixels")
-    print(f"Skipped images without both scan transitions: {skipped}")
-    print(f"Per-image measurements saved to: {args.output}")
+    summary = "\n".join(
+        (
+            f"EMNIST split: {design.EMNIST_SPLIT} (training set)",
+            f"Class: {dataset.classes[o_label]}",
+            f"Images measured: {len(widths)}",
+            "Scan row: 14; white threshold: >127",
+            f"Average stroke width: {np.mean(widths):.3f} pixels",
+            f"Minimum / maximum: {min(widths)} / {max(widths)} pixels",
+            f"Skipped images without both scan transitions: {skipped}",
+            f"Per-image measurements saved to: {args.output}",
+        )
+    )
+    args.summary.parent.mkdir(parents=True, exist_ok=True)
+    args.summary.write_text(summary + "\n", encoding="utf-8")
+
+    print(summary)
+    print(f"Summary saved to: {args.summary}")
 
 
 if __name__ == "__main__":

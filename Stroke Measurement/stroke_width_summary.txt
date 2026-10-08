@@ -1,0 +1,8 @@
+EMNIST split: bymerge (training set)
+Class: O
+Images measured: 200
+Scan row: 14; white threshold: >127
+Average stroke width: 4.345 pixels
+Minimum / maximum: 1 / 12 pixels
+Skipped images without both scan transitions: 0
+Per-image measurements saved to: D:\7. Lectures\MURL FA26\Handwriting-Fall2026\Stroke Measurement\stroke_width_measurements.csv
