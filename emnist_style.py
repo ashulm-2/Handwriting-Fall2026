@@ -21,6 +21,12 @@ def make_binary(img):
 def crop_to_char(mask):
     # find where the white pixels are
     rows, cols = np.where(mask)
+
+    # if there are no white pixels at all, just return the image as is
+    # instead of crashing
+    if rows.size == 0:
+        return mask
+
     top = rows.min()
     bottom = rows.max() + 1
     left = cols.min()

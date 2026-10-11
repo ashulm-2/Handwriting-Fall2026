@@ -19,7 +19,7 @@ from emnist_style import make_binary, crop_to_char, fix_thickness, resize_char, 
 # "EMNIST"
 # "MNIST"
 # "CUSTOM"
-DATASET_TYPE = "MNIST"
+DATASET_TYPE = "EMNIST"
 
 ##############################################################
 # EMNIST SETTINGS
