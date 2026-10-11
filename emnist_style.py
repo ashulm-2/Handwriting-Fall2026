@@ -47,11 +47,18 @@ def crop_to_char(mask):
 
 def get_skeleton(mask):
     # shrink the letter down to a thin line in the middle of the stroke
-    img = mask.astype(np.uint8)
+
+    # add a blank border around the edges first. without this, if the
+    # character touches the edge of the image (or fills the whole thing),
+    # erosion can get stuck and never finish shrinking it
+    pad = 2
+    img = np.pad(mask.astype(np.uint8), pad, mode="constant", constant_values=0)
+
     skeleton = np.zeros_like(img)
     kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
 
-    while True:
+    max_steps = max(img.shape) + 5
+    for i in range(max_steps):
         eroded = cv2.erode(img, kernel)
         opened = cv2.dilate(eroded, kernel)
         piece = cv2.subtract(img, opened)
@@ -59,6 +66,9 @@ def get_skeleton(mask):
         img = eroded
         if cv2.countNonZero(img) == 0:
             break
+
+    # remove the border we added so the output matches the original size
+    skeleton = skeleton[pad:-pad, pad:-pad]
 
     return skeleton > 0
 
