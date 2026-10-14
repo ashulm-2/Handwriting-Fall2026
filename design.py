@@ -23,22 +23,21 @@ from PIL import Image
 # "MNIST"
 # "CUSTOM"
 
-DATASET_TYPE = "MNIST"
+DATASET_TYPE = "EMNIST"
 
 
 ##############################################################
 # EMNIST SETTINGS
 ##############################################################
 
-EMNISTDir = "C:\\Users\\ashul\\OneDrive\\Documents\\GitHub\\emnist"
-
+# torchvision adds "EMNIST/" to this, so the files are read from data/EMNIST/raw
+EMNISTDir = "data"
 # Options:
 # balanced, byclass, bymerge, letters, digits, mnist
 EMNIST_SPLIT = "bymerge"
 
 
-MNISTDir = "C:\\Users\\ashul\\OneDrive\\Documents\\GitHub\\mnist"
-
+MNISTDir = "data"
 
 
 ##############################################################
@@ -57,7 +56,7 @@ MNISTDir = "C:\\Users\\ashul\\OneDrive\\Documents\\GitHub\\mnist"
 #     image1.png
 #
 
-CUSTOM_DATASET_DIRECTORY = r"C:\Users\ashul\Documents\MyDataset"
+CUSTOM_DATASET_DIRECTORY = "custom_writting_clean"
 
 
 
@@ -116,18 +115,19 @@ def CToC(c):
     34:'Y',
     35:'Z',
 
-    # lowercase
+    # lowercase (bymerge/balanced only keep the lowercase letters
+    # that look different from their uppercase versions)
     36:'a',
     37:'b',
-    38:'c',
-    39:'d',
-    40:'e',
-    41:'f',
-    42:'g',
-    43:'h',
-    44:'i',
-    45:'j',
-    46:'k',
+    38:'d',
+    39:'e',
+    40:'f',
+    41:'g',
+    42:'h',
+    43:'n',
+    44:'q',
+    45:'r',
+    46:'t',
   }
 
 
@@ -161,18 +161,59 @@ class TransposeTransform:
     return torch.transpose(img,1,2)
 
 
+"""
+from preprocess import preprocess_image
 
-# User can change this
+class PreprocessTransform:
+  # Runs my full photo pipeline on one PIL image
+  def __call__(self, img):
+    return preprocess_image(img)
+
+
+if DATASET_TYPE == "EMNIST":
+  # EMNIST is stored transposed so needs flipping upright
+  IMAGE_TRANSFORM = transforms.Compose([
+    transforms.Grayscale(num_output_channels=1),
+    BinaryTransform(threshold=100),
+    transforms.ToTensor(),
+    TransposeTransform()
+  ])
+
+elif DATASET_TYPE == "CUSTOM":
+  # Photos go through the whole pipeline already upright
+  IMAGE_TRANSFORM = transforms.Compose([
+    PreprocessTransform(),
+    transforms.ToTensor()
+  ])
+
+else:
+  # MNIST is already upright
+  IMAGE_TRANSFORM = transforms.Compose([
+    transforms.Grayscale(num_output_channels=1),
+    BinaryTransform(threshold=100),
+    transforms.ToTensor()
+  ])
+"""
+
+from preprocess import preprocess_image
+
+
+class PreprocessTransform:
+  # Photos go through my pipeline
+  # EMNIST images pass through unchanged
+  def __call__(self, img):
+    if img.size == (28, 28):
+      return img
+    return preprocess_image(img)
+
 
 IMAGE_TRANSFORM = transforms.Compose([
   transforms.Grayscale(num_output_channels=1),
-  BinaryTransform(
-    threshold=100
-  ),
+  PreprocessTransform(),
+  BinaryTransform(threshold=100),
   transforms.ToTensor(),
   TransposeTransform()
 ])
-
 
 def get_num_classes():
   if DATASET_TYPE=="EMNIST":
@@ -182,7 +223,16 @@ def get_num_classes():
       return 47
     if EMNIST_SPLIT=="byclass":
       return 62
-  
+    if EMNIST_SPLIT=="letters":
+      # labels are 1-26 (torchvision keeps an unused "N/A" class 0)
+      # so the network needs 27 outputs
+      return 27
+    if EMNIST_SPLIT=="digits":
+      return 10
+    if EMNIST_SPLIT=="mnist":
+      return 10
+    raise ValueError("Unknown EMNIST_SPLIT: " + str(EMNIST_SPLIT))
+
   elif DATASET_TYPE == "MNIST":
     return 10
 
@@ -193,5 +243,6 @@ def get_num_classes():
         os.path.join(CUSTOM_DATASET_DIRECTORY,f)
       )
     ]
-    
-  return len(folders)
+    return len(folders)
+
+  raise ValueError("Unknown DATASET_TYPE: " + str(DATASET_TYPE))
