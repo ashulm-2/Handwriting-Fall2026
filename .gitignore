@@ -1,4 +1,6 @@
 custom_characters
+failed_classifications
+transformed_images
 __pycache__
 .DS_Store
 EMNIST/
