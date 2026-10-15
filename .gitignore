@@ -1,0 +1,26 @@
+# Datasets and sample images
+data/
+samples/
+*.jpg
+*.jpeg
+*.png
+*.heic
+*.HEIC
+
+# Pipeline output
+out*.png
+compare*.png
+steps*.png
+
+# Model checkpoints
+*.pt
+*.pth
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# macOS
+.DS_Store

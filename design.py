@@ -30,14 +30,14 @@ DATASET_TYPE = "MNIST"
 # EMNIST SETTINGS
 ##############################################################
 
-EMNISTDir = "C:\\Users\\ashul\\OneDrive\\Documents\\GitHub\\emnist"
+EMNISTDir = "./data"
 
 # Options:
 # balanced, byclass, bymerge, letters, digits, mnist
 EMNIST_SPLIT = "bymerge"
 
 
-MNISTDir = "C:\\Users\\ashul\\OneDrive\\Documents\\GitHub\\mnist"
+MNISTDir = "./data"
 
 
 

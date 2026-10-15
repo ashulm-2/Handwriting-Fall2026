@@ -150,12 +150,12 @@ class CNN(nn.Module):
     self.train_data_loader = torch.utils.data.DataLoader(train_dataset,
                                                   batch_size=self.batch_size,
                                                   shuffle=True,
-                                                  num_workers=8)
+                                                  num_workers=8, pin_memory=torch.cuda.is_available())
       
     self.test_data_loader = torch.utils.data.DataLoader(test_dataset,
                                                   batch_size=self.batch_size,
                                                   shuffle=True,
-                                                  num_workers=8)   
+                                                  num_workers=8, pin_memory=torch.cuda.is_available())   
                                                 
 
 
@@ -188,6 +188,7 @@ class CNN(nn.Module):
       #self._test()
       self.loss_history.append(ep_loss)
 
+  @torch.no_grad()
   def _test(self):
     self.eval()
 
@@ -211,13 +212,15 @@ class CNN(nn.Module):
 
     print(f"Testing: average loss {ep_loss/len(self.test_data_loader):.3f} accuracy {np.mean(ep_acc):.3f}")
 
+    self.train()
+
 
 
 if __name__ == '__main__':
   start = time.time()
   network = CNN() #creates the CNN
   
-  network._train(epochs=5) 
+  network._train(epochs=1) 
   end = time.time()
 
   print(f"It took {(end-start)/60:.1f} minutes to train the network.")
