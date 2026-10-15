@@ -119,7 +119,7 @@ class CNN(nn.Module):
                                download=True, transform=transform)
                                
                                
-    if design.DATASET_TYPE == "MNIST":
+    elif design.DATASET_TYPE == "MNIST":
       train_dataset = MNIST(design.MNISTDir, train=True, download=True, transform=transform)
       test_dataset = MNIST(design.MNISTDir, train=False, download=True, transform=transform)
 
@@ -169,6 +169,7 @@ class CNN(nn.Module):
       for j, (input, label) in enumerate(self.train_data_loader):
         self.optimizer.zero_grad()
         label = label.to(self.device)
+        input = input.to(self.device)        
         prediction = self.forward(input)
         loss = self.loss(prediction, label)
         prediction = F.softmax(prediction, dim=1)
@@ -194,6 +195,7 @@ class CNN(nn.Module):
     ep_acc = []
     for j, (input, label) in enumerate(self.test_data_loader):
       label = label.to(self.device)
+      input = input.to(self.device)        
       prediction = self.forward(input)
       loss = self.loss(prediction, label)
       prediction = F.softmax(prediction, dim=1)
