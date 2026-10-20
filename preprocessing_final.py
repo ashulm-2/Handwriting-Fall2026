@@ -20,7 +20,6 @@ class PreprocessingError(ValueError):
 
 EMNIST_AVERAGE_STROKE_WIDTH = 4.345
 
-
 def _horizontal_stroke_width(
     image: Image.Image,
     row: int = 14,

@@ -50,4 +50,4 @@ def MakePrediction(FileLocation):
  
 
 
-MakePrediction(r"C:\Users\ashul\OneDrive\Documents\GitHub\MURLFall26\enoh\test1.png")
+MakePrediction(r"D:\7. Lectures\MURL FA26\Handwriting-Fall2026\charset\Screenshot 2026-10-19 104511.png")
