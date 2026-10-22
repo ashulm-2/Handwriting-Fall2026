@@ -23,7 +23,7 @@ from PIL import Image
 # "MNIST"
 # "CUSTOM"
 
-DATASET_TYPE = "MNIST"
+DATASET_TYPE = "EMNIST"
 
 
 ##############################################################
@@ -116,18 +116,18 @@ def CToC(c):
     34:'Y',
     35:'Z',
 
-    # lowercase
+    # lowercase (bymerge/balanced keep only the 11 that differ from their capitals)
     36:'a',
     37:'b',
-    38:'c',
-    39:'d',
-    40:'e',
-    41:'f',
-    42:'g',
-    43:'h',
-    44:'i',
-    45:'j',
-    46:'k',
+    38:'d',
+    39:'e',
+    40:'f',
+    41:'g',
+    42:'h',
+    43:'n',
+    44:'q',
+    45:'r',
+    46:'t',
   }
 
 

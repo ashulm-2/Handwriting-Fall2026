@@ -1,6 +1,4 @@
-import tkinter as tk
-from tkinter import ttk
-from PIL import Image, ImageTk, ImageDraw
+from PIL import Image
 import torch
 import torch.nn.functional as F
 import os
@@ -12,9 +10,11 @@ import matplotlib.pyplot as plt
 
 import design
 import CNN
+import imgresize
 
 def LoadImage(FileLocation):
-  img = Image.open(FileLocation).convert("L")   # EMNIST images are grayscale
+  # Convert the photo to an upright EMNIST-style 28x28 (white ink on black) first
+  img = Image.fromarray(imgresize.toEmnist(FileLocation))
   return design.IMAGE_TRANSFORM(img)
   
 
@@ -31,11 +31,11 @@ def MakePrediction(FileLocation):
   ImgTensor = Img.unsqueeze(0)
  
   Model = CNN.CNN()
-  Model.load_state_dict(torch.load("cnn_mnist_1.pt"))
+  Model.load_state_dict(torch.load("CNNEMNIST.pt", map_location=Model.device))
   Model.eval()
  
 
-  Guess = F.softmax(Model(ImgTensor), dim=1)
+  Guess = F.softmax(Model(ImgTensor.to(Model.device)), dim=1)
   Prediction = Guess.argmax(dim=1, keepdim=True)
   top3_values, top3_indices = torch.topk(Guess, k=3, dim=1)
   top3_values = top3_values.squeeze(0) #remove one layer
@@ -50,4 +50,7 @@ def MakePrediction(FileLocation):
  
 
 
-MakePrediction(r"C:\Users\ashul\OneDrive\Documents\GitHub\MURLFall26\enoh\test1.png")
+if __name__ == "__main__":
+  # usage: python predict.py image1.png [image2.png ...]
+  for path in sys.argv[1:]:
+    print(path, "->", MakePrediction(path))

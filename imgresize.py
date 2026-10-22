@@ -56,17 +56,32 @@ def isDarkOnLight(gray) -> bool:
 def isAlreadyClean(gray) -> bool:
     return bool(((gray <= 25) | (gray >= 230)).mean() >= 0.90) or min(gray.shape) < 64
 
-# Reduce to a white-on-black binary image, tolerating uneven lighting in photos.
-def binarize(gray):
-    blur = cv2.GaussianBlur(gray, (5, 5), 0)
-    flag = cv2.THRESH_BINARY_INV if isDarkOnLight(gray) else cv2.THRESH_BINARY
+# Make the ink dark on even, white paper by dividing out a blurred estimate of the paper.
+def flattenLighting(gray):
+    dark = gray if isDarkOnLight(gray) else 255 - gray
+    k = max(15, (min(dark.shape) // 4) | 1)  # wider than any stroke, so closing erases the ink
+    paper = cv2.morphologyEx(dark, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))
+    paper = cv2.GaussianBlur(paper, (k, k), 0)
+    flat = dark.astype(np.float32) / np.maximum(paper, 1).astype(np.float32) * 255
+    return np.clip(flat, 0, 255).astype(np.uint8)
 
+# Reduce to a white-on-black binary image, tolerating uneven lighting in photos.
+def binarize(gray, weakFrac=0.5):
     # Adaptive thresholding hollows an already two-valued image into an outline.
     if isAlreadyClean(gray):
+        blur = cv2.GaussianBlur(gray, (5, 5), 0)
+        flag = cv2.THRESH_BINARY_INV if isDarkOnLight(gray) else cv2.THRESH_BINARY
         return cv2.threshold(blur, 0, 255, flag + cv2.THRESH_OTSU)[1]
 
-    block = max(3, int(min(gray.shape) / 8) | 1)
-    return cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, flag, block, 15)
+    # A small adaptive window cut faint, light-pressure stretches out of strokes, so
+    # threshold the flattened image with hysteresis: Otsu marks the confident ink, and
+    # fainter pixels (up to weakFrac of the way to paper) survive only if they touch it.
+    flat = cv2.GaussianBlur(flattenLighting(gray), (5, 5), 0)
+    level, strong = cv2.threshold(flat, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    weak = (flat < level + weakFrac * (255 - level)).astype(np.uint8)
+    _, labels = cv2.connectedComponents(weak)
+    keep = np.unique(labels[(strong > 0) & (weak > 0)])
+    return (np.isin(labels, keep[keep > 0]) * 255).astype(np.uint8)
 
 # Delete dust and noise: any blob smaller than keepRatio of the largest one.
 def removeSpecks(binary, keepRatio=0.05):
