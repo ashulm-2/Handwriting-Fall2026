@@ -133,7 +133,23 @@ def remove_ruled_lines(binary, length_fraction=1/3, max_thickness_fraction=0.02)
 
     return Image.fromarray(cv2.subtract(binary_array, lines))
 
+def remove_vertical_lines(binary, length_fraction=1/3, max_thickness_fraction=0.02):
+    # Turn vertical lines into horizontal lines
+    transposed = Image.fromarray(
+        np.ascontiguousarray(np.array(binary).T)
+    )
 
+    # Reuse the horizontal-line removal logic
+    cleaned = remove_ruled_lines(
+        transposed,
+        length_fraction,
+        max_thickness_fraction
+    )
+
+    # Restore the original orientation
+    return Image.fromarray(
+        np.ascontiguousarray(np.array(cleaned).T)
+    )
 def remove_specks(binary, min_size_fraction=0.15, max_gap_fraction=0.25,
                   max_line_aspect=8, max_line_height_fraction=0.1):
 
@@ -437,9 +453,12 @@ def preprocess_image(source, return_steps=False):
     binary = otsu_threshold(inverted)
     steps.append(("2. otsu", binary))
 
-    no_lines = remove_ruled_lines(binary)
-    steps.append(("2. remove lines", no_lines))
-
+    no_h_lines = remove_ruled_lines(binary)
+    steps.append(("2. remove horizontal lines", no_h_lines))
+    
+    no_lines = remove_vertical_lines(no_h_lines)
+    steps.append(("2. remove vertical lines", no_lines))
+    
     cleaned = remove_specks(no_lines)
     steps.append(("2. remove specks", cleaned))
 
@@ -452,7 +471,8 @@ def preprocess_image(source, return_steps=False):
     steps.append(("3. crop", cropped))
 
     # 4. Match stroke width
-    matched = match_stroke_width(cropped)
+    # matched = match_stroke_width(cropped)
+    matched = cropped
 
     if matched is None:
         return done(blank_image())
