@@ -4,13 +4,15 @@ from torchvision import datasets, transforms
 import design
 from CNN import CNN
 
-MODEL_FILE = "cnn_emnist_1.pt"
+MODEL_FILE = "cnn_emnist_2.pt"
 
 TEST_DATASET = "CUSTOM"
 CUSTOM_DIRECTORY = "custom_characters"
 DATASET_ROOT = "."
 
-MODEL_CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabdefghnqrt"
+# Bymerge merges selected letter cases (e.g. O/o), NOT visually similar
+# digits and letters (e.g. 0/O). Keep the pretrained output ordering.
+MODEL_CHARACTERS = datasets.EMNIST.classes_split_dict["bymerge"]
 
 def get_test_transform():
     transforms_list = [
@@ -33,6 +35,11 @@ def map_custom_labels(dataset):
 
         if len(character) != 1:
             raise ValueError(f"Unrecognized character folder: {folder!r}")
+
+        if folder.endswith("_upper"):
+            character = character.upper()
+        elif folder.endswith("_lower"):
+            character = character.lower()
 
         if character not in character_to_index:
             character = character.upper()
@@ -76,6 +83,7 @@ def main():
 
     print(f"Model: {MODEL_FILE}")
     print(f"Dataset: {TEST_DATASET}, {len(dataset)} images")
+    print("Bymerge labels: O/o share class 24; digit 0 is a separate class 0.")
 
     model.set_test_data_loader(dataset)
     model._test()

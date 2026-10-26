@@ -32,14 +32,14 @@ DATASET_TYPE = "EMNIST"
 # EMNIST SETTINGS
 ##############################################################
 
-EMNISTDir = "EMNIST/raw/"
+EMNISTDir = "."
 
 # Options:
 # balanced, byclass, bymerge, letters, digits, mnist
 EMNIST_SPLIT = "bymerge"
 
 
-MNISTDir = "MNIST/raw/"
+MNISTDir = "."
 
 
 
@@ -226,47 +226,33 @@ class CropToBoundingSquareTransform:
         x1 = center_x - size // 2
         y1 = center_y - size // 2
 
-        x2 = x1 + size
-        y2 = y1 + size
+        left = max(0, -x1)
+        top = max(0, -y1)
+        right = max(0, x1 + size - img_np.shape[1])
+        bottom = max(0, y1 + size - img_np.shape[0])
 
-        img_h, img_w = img_np.shape[:2]
+        if (left or top or right or bottom):
+            img_np = cv2.copyMakeBorder(img_np, top, bottom, left, right,
+                                        cv2.BORDER_CONSTANT, value=0)
+        x1 += left
+        y1 += top
 
-        if x1 < 0:
-            x2 -= x1
-            x1 = 0
-
-        if y1 < 0:
-            y2 -= y1
-            y1 = 0
-
-        if x2 > img_w:
-            x1 -= x2 - img_w
-            x2 = img_w
-
-        if y2 > img_h:
-            y1 -= y2 - img_h
-            y2 = img_h
-
-        x1 = max(0, x1)
-        y1 = max(0, y1)
-
-        cropped = img_np[y1:y2, x1:x2]
+        cropped = img_np[y1:y1 + size, x1:x1 + size]
 
         return Image.fromarray(cropped)
 
 
 def estimate_stroke_thickness(img):
     img_np = np.array(img)
-
-    dist = cv2.distanceTransform(img_np, cv2.DIST_L2, 5)
-
-    foreground_distances = dist[dist > 0]
-
-    if len(foreground_distances) == 0:
+    mask = (img_np > 0).astype(np.uint8) * 255
+    if (not mask.any()):
         return 0
 
-    stroke_width = 2 * np.median(foreground_distances)
+    dist = cv2.distanceTransform(mask, cv2.DIST_L2, 5)
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3,3))
+    ridge = (dist >= cv2.dilate(dist, kernel) - 1e-6) & (dist > 0)
 
+    stroke_width = 2 * np.median(dist[ridge])
     return stroke_width
 
 
@@ -316,7 +302,7 @@ BINARY_THRESHOLD=80;
 BORDER=5
 PADDING_PERCENT=8
 STROKE_THICKNESS_LB = 2.5
-STROKE_THICKNESS_UB = 5.5
+STROKE_THICKNESS_UB = 6.5
 
 
 transforms_list = [
@@ -325,12 +311,13 @@ transforms_list = [
     EnsureDarkBackgroundTransform(threshold=BINARY_THRESHOLD), # Black background, white character
 
     AddBlackBorderTransform(thickness=BORDER), # Add a black border around the image
-    NormalizeStrokeThicknessTransform(STROKE_THICKNESS_LB, STROKE_THICKNESS_UB), # Dilate/errode stroke thickness based on estimation of current stroke thickness
 
     CropToBoundingSquareTransform(threshold=BINARY_THRESHOLD, padding_percent=PADDING_PERCENT), # Crop to a square around the character
     ResizeAndPadTransform(28, 28), # Resize the image to 28x28
 
     BinaryTransform(threshold=BINARY_THRESHOLD), # Black/White
+
+    NormalizeStrokeThicknessTransform(STROKE_THICKNESS_LB, STROKE_THICKNESS_UB), # Dilate/errode stroke thickness based on estimation of current stroke thickness
 
     transforms.ToTensor(),
 ]

@@ -1,4 +1,5 @@
 import os
+from collections import Counter
 import cv2
 import torch
 import torch.nn as nn
@@ -24,10 +25,10 @@ import sys
 from pathlib import Path
 
 
-NETWORK_OUTPUT_FILENAME = "cnn_mnist_1.pt"
+NETWORK_OUTPUT_FILENAME = "cnn_emnist_2.pt"
 
 SAVE_FAILED_TEST_IMAGES = False
-SAVE_FAILED_TEST_PATH = "failed_classifications"
+SAVE_FAILED_TEST_PATH = "failed_classifications_2"
 
 transform = design.IMAGE_TRANSFORM
 
@@ -159,7 +160,7 @@ class CNN(nn.Module):
         self.test_data_loader = torch.utils.data.DataLoader(
             dataset,
             batch_size=self.batch_size,
-            shuffle=True,
+            shuffle=False,
             num_workers=8
         )
 
@@ -204,6 +205,7 @@ class CNN(nn.Module):
         ep_correct = 0
         ep_samples = 0
         saved_count = 0
+        confusions = Counter()
         for j, (input, label) in enumerate(self.test_data_loader):
             input = input.to(self.device)
             label = label.to(self.device)
@@ -213,17 +215,19 @@ class CNN(nn.Module):
             classes = torch.argmax(prediction, dim=1)
             batch_samples = label.size(0)
 
-            if (output_directory is not None):
-                failed_indicies = ((classes != label).nonzero(as_tuple=True)[0].tolist())
+            failed_indices = (classes != label).nonzero(as_tuple=True)[0].tolist()
+            for index in failed_indices:
+                confusions[(int(label[index].item()), int(classes[index].item()))] += 1
 
-                for index in failed_indicies:
+            if (output_directory is not None):
+                for index in failed_indices:
                     true_class = int(label[index].item())
                     predicted_class = int(classes[index].item())
 
                     class_directory = output_directory / str(true_class)
                     class_directory.mkdir(parents=True, exist_ok=True)
 
-                    filename = (f"batch_{j:05d}_image_{index:03d}_pred_{predicted_class}.png")
+                    filename = (f"batch_{j:05d}_image_{index:03d}_true_{design.CToC(true_class)}_pred_{predicted_class}_{design.CToC(predicted_class)}.png")
 
                     image = input[index].detach().cpu()
                     FF.to_pil_image(image).save(class_directory / filename)
@@ -235,6 +239,10 @@ class CNN(nn.Module):
             ep_loss += loss.item() * batch_samples
 
         print(f"Testing: average loss {ep_loss / ep_samples:.3f} accuracy {ep_correct / ep_samples:.3f}")
+        print(f"Correct: {ep_correct}/{ep_samples}; failed: {ep_samples - ep_correct}")
+        print("Most frequent confusions (true -> predicted):")
+        for (true_class, predicted_class), count in confusions.most_common(20):
+            print(f"  {design.CToC(true_class)} -> {design.CToC(predicted_class)}: {count}")
 
         if output_directory is not None:
              print(f"Saved {saved_count} failed images to {output_directory}")
@@ -244,7 +252,7 @@ if __name__ == '__main__':
     start = time.time()
     network = CNN()  # creates the CNN
 
-    network._train(epochs=1)
+    network._train(epochs=5)
     end = time.time()
 
     print(f"It took {(end - start) / 60:.1f} minutes to train the network.")
