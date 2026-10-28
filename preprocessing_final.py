@@ -321,4 +321,5 @@ def preprocess_directory(source_directory: str | Path, output_directory: str | P
 
 
 if __name__ == "__main__":
-    preprocess_directory("charset", "output")
+    preprocess_directory("charset_2", "output")
+    # preprocess_file(r"charset_2\e.png", "output")
