@@ -1,0 +1,5 @@
+model,n,exact_%,within1_%,within2_%,similarity,token_error_rate,mean_s_per_image,median_s_per_image,load_s,errors
+texo,41,97.6,97.6,100.0,0.998,0.002,0.072,0.072,0.9,0
+texteller,41,85.4,90.2,92.7,0.946,0.172,1.665,1.584,5.9,0
+qwen3.5-mathparser,41,97.6,97.6,97.6,0.993,0.009,8.027,7.883,4.1,0
+qwen3-vl,41,100.0,100.0,100.0,1.0,0.0,6.151,6.071,3.5,0

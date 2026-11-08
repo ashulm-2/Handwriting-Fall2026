@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Handwriting Prompt Sheet</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 24px; color: #111; background: #fff; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p.how { margin: 0 0 16px; color: #444; max-width: 70ch; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
+  .card { border: 1px solid #bbb; border-radius: 6px; padding: 10px 12px; break-inside: avoid; }
+  .head { display: flex; justify-content: space-between; font-size: 12px; color: #555; }
+  .math { font-size: 20px; padding: 10px 0 6px; overflow-x: auto; }
+  .note { font-size: 12px; color: #a33; }
+  @media print { body { margin: 8mm; } .grid { grid-template-columns: 1fr 1fr; } }
+</style></head><body>
+<h1>Handwriting prompt sheet (42 formulas)</h1>
+<p class="how">Write each formula by hand in your normal handwriting, one per photo, on plain paper
+(or on the online canvas). Save each photo with the filename in its box, inside
+<code>testset/images/</code>, then run <code>python evaluate.py --data testset</code>.
+Formulas marked "altered-famous" are deliberately changed versions of well-known formulas:
+copy them exactly as shown, because they test whether a model reads what is written or
+"autocorrects" it to the famous version.</p>
+<div class="grid">
+<div class="card"><div class="head"><b>images/01.jpg</b><span>basic</span></div><div class="math" data-tex="3x - 7 = 2y + 5"></div></div>
+<div class="card"><div class="head"><b>images/02.jpg</b><span>fraction</span></div><div class="math" data-tex="\frac{4a+1}{b-3}"></div></div>
+<div class="card"><div class="head"><b>images/03.jpg</b><span>scripts</span></div><div class="math" data-tex="q^{3} - 4q + 9 = 0"></div></div>
+<div class="card"><div class="head"><b>images/04.jpg</b><span>scripts</span></div><div class="math" data-tex="y_{k+1} = 2y_{k} - y_{k-1}"></div></div>
+<div class="card"><div class="head"><b>images/05.jpg</b><span>root</span></div><div class="math" data-tex="\sqrt{m^{2} + 7n}"></div></div>
+<div class="card"><div class="head"><b>images/06.jpg</b><span>root</span></div><div class="math" data-tex="\sqrt[3]{8 - z}"></div></div>
+<div class="card"><div class="head"><b>images/07.jpg</b><span>fraction</span></div><div class="math" data-tex="\frac{1}{t} + \frac{2}{t^{2}} = \frac{5}{3}"></div></div>
+<div class="card"><div class="head"><b>images/08.jpg</b><span>fraction</span></div><div class="math" data-tex="f(x) = \frac{x+4}{x^{2}-9}"></div></div>
+<div class="card"><div class="head"><b>images/09.jpg</b><span>calculus</span></div><div class="math" data-tex="\sum_{j=2}^{N} \frac{1}{j^{3}}"></div></div>
+<div class="card"><div class="head"><b>images/10.jpg</b><span>calculus</span></div><div class="math" data-tex="\int_{1}^{4} (3u^{2} - u) \, du"></div></div>
+<div class="card"><div class="head"><b>images/11.jpg</b><span>calculus</span></div><div class="math" data-tex="\lim_{h \to 0} \frac{g(2+h) - g(2)}{h}"></div></div>
+<div class="card"><div class="head"><b>images/12.jpg</b><span>calculus</span></div><div class="math" data-tex="\frac{d}{dx} \left( x^{3} e^{-2x} \right)"></div></div>
+<div class="card"><div class="head"><b>images/13.jpg</b><span>greek</span></div><div class="math" data-tex="\alpha + 2\beta = \gamma^{2}"></div></div>
+<div class="card"><div class="head"><b>images/14.jpg</b><span>greek</span></div><div class="math" data-tex="\theta_{1} - \theta_{2} \leq \frac{\pi}{6}"></div></div>
+<div class="card"><div class="head"><b>images/15.jpg</b><span>greek</span></div><div class="math" data-tex="\lambda^{2} - 3\lambda + \mu = 0"></div></div>
+<div class="card"><div class="head"><b>images/16.jpg</b><span>greek</span></div><div class="math" data-tex="\sin(3\phi) + \cos^{2}\psi"></div></div>
+<div class="card"><div class="head"><b>images/17.jpg</b><span>functions</span></div><div class="math" data-tex="\log_{5}(x+2) = 3"></div></div>
+<div class="card"><div class="head"><b>images/18.jpg</b><span>symbols</span></div><div class="math" data-tex="|w - 4| &lt; \epsilon"></div></div>
+<div class="card"><div class="head"><b>images/19.jpg</b><span>scripts</span></div><div class="math" data-tex="a_{n} = \frac{(-1)^{n}}{2n+1}"></div></div>
+<div class="card"><div class="head"><b>images/20.jpg</b><span>symbols</span></div><div class="math" data-tex="P(A | B) = \frac{0.3}{0.8}"></div></div>
+<div class="card"><div class="head"><b>images/21.jpg</b><span>accents</span></div><div class="math" data-tex="\overline{z} \cdot z = |z|^{2}"></div></div>
+<div class="card"><div class="head"><b>images/22.jpg</b><span>accents</span></div><div class="math" data-tex="\vec{v} = 3\hat{i} - \hat{j}"></div></div>
+<div class="card"><div class="head"><b>images/23.jpg</b><span>calculus</span></div><div class="math" data-tex="\int_{0}^{\infty} e^{-st} t^{2} \, dt"></div></div>
+<div class="card"><div class="head"><b>images/24.jpg</b><span>calculus</span></div><div class="math" data-tex="\prod_{k=1}^{5} (1 + x_{k})"></div></div>
+<div class="card"><div class="head"><b>images/25.jpg</b><span>matrix</span></div><div class="math" data-tex="\begin{pmatrix} 2 &amp; -1 \\ 0 &amp; 4 \end{pmatrix}"></div></div>
+<div class="card"><div class="head"><b>images/26.jpg</b><span>functions</span></div><div class="math" data-tex="\det(A - 3I) = 0"></div></div>
+<div class="card"><div class="head"><b>images/27.jpg</b><span>symbols</span></div><div class="math" data-tex="x \in [0, 7) \cup (9, 12]"></div></div>
+<div class="card"><div class="head"><b>images/28.jpg</b><span>symbols</span></div><div class="math" data-tex="\forall \epsilon &gt; 0 \exists \delta &gt; 0"></div></div>
+<div class="card"><div class="head"><b>images/29.jpg</b><span>calculus</span></div><div class="math" data-tex="\frac{\partial^{2} u}{\partial x \partial y} = 6xy"></div></div>
+<div class="card"><div class="head"><b>images/30.jpg</b><span>symbols</span></div><div class="math" data-tex="\nabla \cdot \vec{F} = \rho"></div></div>
+<div class="card"><div class="head"><b>images/31.jpg</b><span>scripts</span></div><div class="math" data-tex="e^{\frac{x}{4}} - 2 \geq 0"></div></div>
+<div class="card"><div class="head"><b>images/32.jpg</b><span>symbols</span></div><div class="math" data-tex="\binom{9}{4} = 126"></div></div>
+<div class="card"><div class="head"><b>images/33.jpg</b><span>fraction</span></div><div class="math" data-tex="\frac{3}{\frac{1}{a} + \frac{1}{b}}"></div></div>
+<div class="card"><div class="head"><b>images/34.jpg</b><span>basic</span></div><div class="math" data-tex="7! \div 5! = 42"></div></div>
+<div class="card"><div class="head"><b>images/35.jpg</b><span>scripts</span></div><div class="math" data-tex="2^{x} \cdot 2^{3x} = 2^{4x}"></div></div>
+<div class="card"><div class="head"><b>images/36.jpg</b><span>altered-famous</span></div><div class="math" data-tex="a^{2} + b^{2} = c^{3}"></div><div class="note">Pythagorean theorem with c cubed</div></div>
+<div class="card"><div class="head"><b>images/37.jpg</b><span>altered-famous</span></div><div class="math" data-tex="E = mc^{3}"></div><div class="note">mass-energy with c cubed</div></div>
+<div class="card"><div class="head"><b>images/38.jpg</b><span>altered-famous</span></div><div class="math" data-tex="e^{i\pi} - 1 = 0"></div><div class="note">Euler&#x27;s identity with minus instead of plus</div></div>
+<div class="card"><div class="head"><b>images/39.jpg</b><span>altered-famous</span></div><div class="math" data-tex="x = \frac{-b \pm \sqrt{b^{2} + 4ac}}{2a}"></div><div class="note">quadratic formula with + 4ac</div></div>
+<div class="card"><div class="head"><b>images/40.jpg</b><span>altered-famous</span></div><div class="math" data-tex="\sin^{2}\theta + \cos^{2}\theta = 2"></div><div class="note">identity equals 2 instead of 1</div></div>
+<div class="card"><div class="head"><b>images/41.jpg</b><span>altered-famous</span></div><div class="math" data-tex="F = ma^{2}"></div><div class="note">Newton&#x27;s second law with a squared</div></div>
+<div class="card"><div class="head"><b>images/42.jpg</b><span>altered-famous</span></div><div class="math" data-tex="\int_{a}^{b} f&#x27;(x) \, dx = f(a) - f(b)"></div><div class="note">fundamental theorem with a and b swapped</div></div>
+</div>
+<script>
+  document.querySelectorAll('.math').forEach(el =>
+    katex.render(el.dataset.tex, el, { displayMode: true, throwOnError: false }));
+</script>
+</body></html>

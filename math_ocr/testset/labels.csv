@@ -1,0 +1,43 @@
+image,latex,category,note
+images/01.jpg,3x - 7 = 2y + 5,basic,
+images/02.jpg,\frac{4a+1}{b-3},fraction,
+images/03.jpg,q^{3} - 4q + 9 = 0,scripts,
+images/04.jpg,y_{k+1} = 2y_{k} - y_{k-1},scripts,
+images/05.jpg,\sqrt{m^{2} + 7n},root,
+images/06.jpg,\sqrt[3]{8 - z},root,
+images/07.jpg,\frac{1}{t} + \frac{2}{t^{2}} = \frac{5}{3},fraction,
+images/08.jpg,f(x) = \frac{x+4}{x^{2}-9},fraction,
+images/09.jpg,\sum_{j=2}^{N} \frac{1}{j^{3}},calculus,
+images/10.jpg,"\int_{1}^{4} (3u^{2} - u) \, du",calculus,
+images/11.jpg,\lim_{h \to 0} \frac{g(2+h) - g(2)}{h},calculus,
+images/12.jpg,\frac{d}{dx} \left( x^{3} e^{-2x} \right),calculus,
+images/13.jpg,\alpha + 2\beta = \gamma^{2},greek,
+images/14.jpg,\theta_{1} - \theta_{2} \leq \frac{\pi}{6},greek,
+images/15.jpg,\lambda^{2} - 3\lambda + \mu = 0,greek,
+images/16.jpg,\sin(3\phi) + \cos^{2}\psi,greek,
+images/17.jpg,\log_{5}(x+2) = 3,functions,
+images/18.jpg,|w - 4| < \epsilon,symbols,
+images/19.jpg,a_{n} = \frac{(-1)^{n}}{2n+1},scripts,
+images/20.jpg,P(A | B) = \frac{0.3}{0.8},symbols,
+images/21.jpg,\overline{z} \cdot z = |z|^{2},accents,
+images/22.jpg,\vec{v} = 3\hat{i} - \hat{j},accents,
+images/23.jpg,"\int_{0}^{\infty} e^{-st} t^{2} \, dt",calculus,
+images/24.jpg,\prod_{k=1}^{5} (1 + x_{k}),calculus,
+images/25.jpg,\begin{pmatrix} 2 & -1 \\ 0 & 4 \end{pmatrix},matrix,
+images/26.jpg,\det(A - 3I) = 0,functions,
+images/27.jpg,"x \in [0, 7) \cup (9, 12]",symbols,
+images/28.jpg,\forall \epsilon > 0 \exists \delta > 0,symbols,
+images/29.jpg,\frac{\partial^{2} u}{\partial x \partial y} = 6xy,calculus,
+images/30.jpg,\nabla \cdot \vec{F} = \rho,symbols,
+images/31.jpg,e^{\frac{x}{4}} - 2 \geq 0,scripts,
+images/32.jpg,\binom{9}{4} = 126,symbols,
+images/33.jpg,\frac{3}{\frac{1}{a} + \frac{1}{b}},fraction,nested fraction
+images/34.jpg,7! \div 5! = 42,basic,
+images/35.jpg,2^{x} \cdot 2^{3x} = 2^{4x},scripts,
+images/36.jpg,a^{2} + b^{2} = c^{3},altered-famous,Pythagorean theorem with c cubed
+images/37.jpg,E = mc^{3},altered-famous,mass-energy with c cubed
+images/38.jpg,e^{i\pi} - 1 = 0,altered-famous,Euler's identity with minus instead of plus
+images/39.jpg,x = \frac{-b \pm \sqrt{b^{2} + 4ac}}{2a},altered-famous,quadratic formula with + 4ac
+images/40.jpg,\sin^{2}\theta + \cos^{2}\theta = 2,altered-famous,identity equals 2 instead of 1
+images/41.jpg,F = ma^{2},altered-famous,Newton's second law with a squared
+images/42.jpg,"\int_{a}^{b} f'(x) \, dx = f(a) - f(b)",altered-famous,fundamental theorem with a and b swapped

@@ -1,0 +1,22 @@
+# Install CPU-only PyTorch first (much smaller than the CUDA build):
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+# then:
+#   pip install -r requirements.txt
+#
+# Tested on Python 3.10.6 / Windows 11 with: torch 2.14.1+cpu, torchvision 0.29.2,
+# transformers 5.20.2, onnxruntime 1.23.2, tokenizers 0.23.3, numpy 2.2.6, pillow 12.3.0.
+
+torch>=2.6
+torchvision>=0.21
+transformers>=5.0        # Qwen3.5 needs a recent release
+accelerate
+onnxruntime>=1.20        # Texo runs on ONNX Runtime (no PyTorch needed for Texo itself)
+tokenizers
+huggingface_hub
+numpy
+pillow
+opencv-python-headless   # TexTeller preprocessing
+
+# Only for the helper scripts:
+pyarrow                  # fetch_unimer_hwe.py
+matplotlib               # testset/render_printed.py
