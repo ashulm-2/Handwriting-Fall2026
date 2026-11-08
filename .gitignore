@@ -33,3 +33,7 @@ math_ocr/benchmark/
 # ...but our own handwritten test photos should be shared
 !math_ocr/testset/images/
 !math_ocr/testset/images/*
+
+# Weight-space experiments: regenerable data
+weight_space/data/
+weight_space/work/

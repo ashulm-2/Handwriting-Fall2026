@@ -1,0 +1,3 @@
+variant,split,what,n,exact,within2,similarity,s_per_img
+qwen3.5-mathparser,dev,instrumented base pass,150,,,,
+qwen3-vl,dev,instrumented base pass,150,,,,
