@@ -31,7 +31,7 @@ def MakePrediction(FileLocation):
   ImgTensor = Img.unsqueeze(0)
  
   Model = CNN.CNN()
-  Model.load_state_dict(torch.load("cnn_mnist_1.pt"))
+  Model.load_state_dict(torch.load("CNNEMNIST.pt", map_location="cpu"))
   Model.eval()
  
 
@@ -50,4 +50,4 @@ def MakePrediction(FileLocation):
  
 
 
-MakePrediction(r"C:\Users\ashul\OneDrive\Documents\GitHub\MURLFall26\enoh\test1.png")
+MakePrediction(r"chars/A-med.jpg")
