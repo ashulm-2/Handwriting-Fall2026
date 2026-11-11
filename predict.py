@@ -16,7 +16,7 @@ if isinstance(_steps[-1], TransposeTransform):
 CUSTOM_IMAGE_TRANSFORM = transforms.Compose(_steps)
 
 EXTENSIONS = (".png", ".jpg", ".jpeg", ".bmp")
-MODEL_PATH = "CNNEMNIST(1).pt"
+MODEL_PATH = "CNNEMNIST.pt"
 THUMB_SIZE = 120
 
 
