@@ -129,15 +129,17 @@ def CToC(c):
     # lowercase
     36:'a',
     37:'b',
-    38:'c',
-    39:'d',
-    40:'e',
-    41:'f',
-    42:'g',
-    43:'h',
-    44:'i',
-    45:'j',
-    46:'k',
+    38:'d',
+    39:'e',
+    40:'f',
+    41:'g',
+    42:'h',
+    43:'n',
+    44:'q',
+    45:'r',
+    46:'t',
+    # modified the mapping for lowercase letter to align with the verified
+    # EMNIST bymerge class order
   }
 
 
